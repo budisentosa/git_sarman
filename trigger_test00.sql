@@ -41,4 +41,6 @@ CREATE DEFINER=`root`@`%` TRIGGER `test00` AFTER INSERT ON `barcodegen` FOR EACH
 		end if;
 
 	end loop simple_loop;
+	INSERT INTO sbg.barcodestk (idcodetr, stkyear)
+	VALUES(new.idcodetr, new.stokyear);
 end
