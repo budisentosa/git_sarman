@@ -41,6 +41,21 @@ CREATE DEFINER=`root`@`%` TRIGGER `test00` AFTER INSERT ON `barcodegen` FOR EACH
 		end if;
 
 	end loop simple_loop;
-	INSERT INTO sbg.barcodestk (idcodetr, stkyear, dibuat, dipakai, rusak, stok_akhir ,nmpt)
-	VALUES(new.idcodetr, new.stokyear, new.jml_gen, 0, 0, new.jml_gen, new.nmpt);
+	if (
+		select exists (
+			select 1
+			from barcodestk b 
+			where b.idcodetr = new.idcodetr and b.stkyear = new.stokyear 
+			and b.nmpt = new.nmpt
+		)
+	) then
+		update barcodestk 
+		set dibuat = dibuat + new.jml_gen, 
+		stok_akhir = stok_akhir + new.jml_gen
+		where idcodetr = new.idcodetr and stkyear = new.stokyear
+		and nmpt = new.nmpt;
+	else 
+		INSERT INTO sbg.barcodestk (idcodetr, stkyear, dibuat, dipakai, rusak, stok_akhir ,nmpt)
+		VALUES(new.idcodetr, new.stokyear, new.jml_gen, 0, 0, new.jml_gen, new.nmpt);
+	end if ;
 end
